@@ -1,0 +1,15 @@
+
+测试程序 
+
+keil4_C51 
+
+p15 LED 闪烁
+
+串口UART1 9600BPS 打印S
+
+
+下载方法:
+DOWN与3V3短接上电进入ISP下载模式, 可以使用USB或TTL串口下载
+
+下载软件:
+WCHISPTOOL

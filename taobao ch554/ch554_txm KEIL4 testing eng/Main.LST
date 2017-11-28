@@ -1,0 +1,66 @@
+C51 COMPILER V9.02   MAIN                                                                  05/16/2017 09:17:04 PAGE 1   
+
+
+C51 COMPILER V9.02, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN Main.OBJ
+COMPILER INVOKED BY: C:\Keilc51\C51\BIN\C51.EXE Main.C BROWSE NOAREGS DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          
+   2          /********************************** (C) COPYRIGHT *******************************
+   3          * File Name          : Main.C
+   4          * Author             : WCH
+   5          * Version            : V1.0
+   6          * Date               : 2017/01/20
+   7          * Description        : CH554 ´¥Ãþ°´¼üÖÐ¶ÏºÍ²éÑ¯·½Ê½½øÐÐ²É¼¯²¢±¨¸æµ±Ç°²ÉÑùÍ¨µÀ°´¼ü×´Ì¬£¬°üº¬³õÊ¼»¯ºÍ°´¼ü²ÉÑ
+             -ùµÈÑÝÊ¾º¯Êý
+   8          *******************************************************************************/
+   9          #include "CH554.H"
+  10          #include "Debug.H"
+  11          #include "TouchKey.H"
+  12          #include <stdio.h>
+  13          
+  14          #pragma  NOAREGS
+  15          
+  16          #define LED_PIN 5
+  17          sbit    LED=P1^5;
+  18          main( )
+  19          {
+  20   1      
+  21   1          CfgFsys( );                                                                //CH554Ê±ÖÓÑ¡ÔñÅäÖÃ
+  22   1          mDelaymS(5);
+  23   1          P1_DIR_PU &= 0x0C;
+  24   1          P1_MOD_OC = P1_MOD_OC & ~(1<<LED_PIN);
+  25   1          P1_DIR_PU = P1_DIR_PU |     (1<<LED_PIN);
+  26   1        //  TouchKeyQueryCyl2ms();                                                     //TouchKey²éÑ¯ÖÜÆÚ2ms
+  27   1        //  GetTouckKeyFreeBuf();                                                      //»ñÈ¡²ÉÑù»ù×¼Öµ
+  28   1      
+  29   1          UART1Setup();
+  30   1           EA = 1;
+  31   1      
+  32   1          while(1)
+  33   1          {
+  34   2              mDelaymS(200);
+  35   2              LED=!LED;
+  36   2              CH554UART1SendByte('R');
+  37   2      
+  38   2      
+  39   2             
+  40   2          }
+  41   1      
+  42   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     40    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

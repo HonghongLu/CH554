@@ -1,0 +1,87 @@
+
+; Windows USB CDC Setup File
+; Copyright (c) 2000 Microsoft Corporation
+; Copyright (c) 2006 Recursion Co., Ltd.
+
+[Version] 
+Signature="$Windows NT$" 
+
+;类选择为端口
+Class=Ports
+
+;使用的安装类GUID。该GUID类的设备为“端口 (COM 和 LPT)”，
+;可以在注册表HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Class中找到它。
+;在设备管理器中我们可以看到最后生成的设备被放在了“端口 (COM 和 LPT)”之下。
+;并且打开设备的属性可以看到设备的类型为“端口 (COM 和 LPT)”。
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318} 
+
+;驱动程序的提供商，它将显示在设备属性的驱动程序标签页中的驱动程序提供商中。
+;驱动程序提供商名称COMPANY在该文件最后被定义，它是一个字符串。
+Provider=%COMPANY% 
+
+;使用layout.inf文件
+LayoutFile=layout.inf
+
+;驱动程序的日期和版本号。驱动安装器根据此来判断驱动程序的新旧。
+;它们会显示在设备属性的驱动程序标签页中。
+DriverVer=08/04/2008,1.0.0.1
+
+[Manufacturer] 
+;制造商名称。会在设备属性窗口的常规标签的制造商中显示。
+;MFGNAME在该文件最后最后被定义。
+%MFGNAME% = ManufName
+
+[DestinationDirs] 
+;目标文件夹的位置。12为system32目录。
+DefaultDestDir=12 
+
+[ManufName] 
+;这里设置显示设备的名称以及匹配的ID号。
+;Modem3是在后面定义的一个字符串，修改它可以显示不同的设备名称。
+;后面的USB\VID_8888&PID_0007表示该驱动所匹配的设备，需要根据自己
+;的设备设置。我们的设备VID为8888，PID为0007。
+%Modem3% = Modem3, USB\VID_1a86&PID_5722
+
+;------------------------------------------------------------------------------
+;  Windows 2000/XP Sections
+;------------------------------------------------------------------------------
+
+[Modem3.nt]
+CopyFiles=USBModemCopyFileSection
+AddReg=Modem3.nt.AddReg 
+
+[USBModemCopyFileSection]
+;需要复制usbser.sys文件，该文件是windows 2000/XP自带的
+usbser.sys,,,0x20
+
+[Modem3.nt.AddReg]
+;增加注册表项
+HKR,,DevLoader,,*ntkern 
+HKR,,NTMPDriver,,usbser.sys
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider" 
+
+[Modem3.nt.Services]
+;增加驱动服务
+AddService=usbser, 0x00000002, DriverService
+
+[DriverService] 
+DisplayName=%SERVICE%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys 
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+;这些是根据自己需要定义的字符串，可以按照自己的需要来修改它们，
+;它们只是一些供显示用的字符串，没有实际的意义，用户可以随便修改。
+[Strings]
+;公司名称
+COMPANY="江苏沁恒"
+;制造商名称
+MFGNAME="WCH"
+;设备名称，它将显示在设备管理器中
+Modem3="USB转串口"
+;服务名称
+SERVICE="USB2UART Driver"

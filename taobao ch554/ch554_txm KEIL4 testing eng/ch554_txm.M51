@@ -1,0 +1,434 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        05/16/2017  09:17:04  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+C:\KEILC51\C51\BIN\BL51.EXE Debug.obj, Main.obj, TouchKey.obj TO ch554_txm
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  Debug.obj (DEBUG)
+  Main.obj (MAIN)
+  TouchKey.obj (TOUCHKEY)
+  C:\KEILC51\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEILC51\C51\LIB\C51S.LIB (?C?ULDIV)
+
+
+LINK MAP OF MODULE:  ch554_txm (DEBUG)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     0009H     UNIT         ?DT?TOUCHKEY
+            DATA    0019H     0005H     UNIT         ?DT?MINITSTDIO?DEBUG
+            IDATA   001EH     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0028H     UNIT         ?PR?MAIN?MAIN
+            CODE    002BH     000EH     UNIT         ?PR?_MDELAYUS?DEBUG
+                    0039H     0002H                  *** GAP ***
+            CODE    003BH     0003H     ABSOLUTE     
+            CODE    003EH     00CEH     UNIT         ?C?LIB_CODE
+            CODE    010CH     0076H     UNIT         ?PR?MINITSTDIO?DEBUG
+            CODE    0182H     004AH     UNIT         ?PR?GETTOUCKKEYFREEBUF?TOUCHKEY
+            CODE    01CCH     003BH     UNIT         ?PR?TOUCHKEYINTERRUPT?TOUCHKEY
+            CODE    0207H     0019H     UNIT         ?PR?_MDELAYMS?DEBUG
+            CODE    0220H     0017H     UNIT         ?PR?_CH554WDTMODESELECT?DEBUG
+            CODE    0237H     0014H     UNIT         ?PR?_TOUCHKEYCHANNELSELECT?TOUCHKEY
+            CODE    024BH     0012H     UNIT         ?PR?CFGFSYS?DEBUG
+            CODE    025DH     000CH     UNIT         ?C_C51STARTUP
+            CODE    0269H     000AH     UNIT         ?PR?UART1SETUP?DEBUG
+            CODE    0273H     0008H     UNIT         ?PR?CH554UART0RCVBYTE?DEBUG
+            CODE    027BH     0008H     UNIT         ?PR?_CH554UART0SENDBYTE?DEBUG
+            CODE    0283H     0008H     UNIT         ?PR?CH554UART1RCVBYTE?DEBUG
+            CODE    028BH     0008H     UNIT         ?PR?_CH554UART1SENDBYTE?DEBUG
+            CODE    0293H     0004H     UNIT         ?PR?CH554UART0ALTER?DEBUG
+            CODE    0297H     0003H     UNIT         ?PR?_CH554WDTFEED?DEBUG
+
+
+
+OVERLAY MAP OF MODULE:   ch554_txm (DEBUG)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 2
+
+
+---------------------
+?C_C51STARTUP
+  +--> ?PR?MAIN?MAIN
+
+?PR?MAIN?MAIN
+  +--> ?PR?CFGFSYS?DEBUG
+  +--> ?PR?_MDELAYMS?DEBUG
+  +--> ?PR?UART1SETUP?DEBUG
+  +--> ?PR?_CH554UART1SENDBYTE?DEBUG
+
+?PR?_MDELAYMS?DEBUG
+  +--> ?PR?_MDELAYUS?DEBUG
+
+
+
+SYMBOL TABLE OF MODULE:  ch554_txm (DEBUG)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        DEBUG
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  C:0269H         PUBLIC        UART1Setup
+  C:0220H         PUBLIC        _CH554WDTModeSelect
+  C:010CH         PUBLIC        mInitSTDIO
+  D:00E8H         PUBLIC        IE_EX
+  D:00A8H         PUBLIC        IE
+  C:0297H         PUBLIC        _CH554WDTFeed
+  C:0293H         PUBLIC        CH554UART0Alter
+  D:00B8H         PUBLIC        IP
+  B:0098H.0       PUBLIC        RI
+  B:0098H.1       PUBLIC        TI
+  D:00FFH         PUBLIC        WDOG_COUNT
+  D:00B9H         PUBLIC        CLOCK_CFG
+  C:0207H         PUBLIC        _mDelaymS
+  D:00C2H         PUBLIC        SBAUD1
+  B:00C0H.0       PUBLIC        U1RI
+  B:00C0H.1       PUBLIC        U1TI
+  D:00D8H         PUBLIC        USB_INT_FG
+  C:002BH         PUBLIC        _mDelayuS
+  B:00C8H.5       PUBLIC        RCLK
+  B:00C8H.4       PUBLIC        TCLK
+  D:0099H         PUBLIC        SBUF
+  D:0087H         PUBLIC        PCON
+  D:0098H         PUBLIC        SCON
+  D:0089H         PUBLIC        TMOD
+  D:0088H         PUBLIC        TCON
+  C:024BH         PUBLIC        CfgFsys
+  B:00C0H.5       PUBLIC        U1SMOD
+  D:00F8H         PUBLIC        SPI0_STAT
+  C:027BH         PUBLIC        _CH554UART0SendByte
+  C:028BH         PUBLIC        _CH554UART1SendByte
+  D:008DH         PUBLIC        TH1
+  B:0098H.7       PUBLIC        SM0
+  B:0098H.6       PUBLIC        SM1
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 3
+
+
+  B:0098H.5       PUBLIC        SM2
+  B:00C0H.7       PUBLIC        U1SM0
+  B:0088H.6       PUBLIC        TR1
+  C:0273H         PUBLIC        CH554UART0RcvByte
+  C:0283H         PUBLIC        CH554UART1RcvByte
+  D:0080H         PUBLIC        ADC_CTRL
+  D:00A1H         PUBLIC        SAFE_MOD
+  D:00C1H         PUBLIC        SBUF1
+  D:00B1H         PUBLIC        GLOBAL_CFG
+  D:00C0H         PUBLIC        SCON1
+  B:0098H.4       PUBLIC        REN
+  D:00C9H         PUBLIC        T2MOD
+  D:00C8H         PUBLIC        T2CON
+  B:00C0H.4       PUBLIC        U1REN
+  D:00C6H         PUBLIC        PIN_FUNC
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          CFGFSYS
+  C:024BH         LINE#         25
+  C:024BH         LINE#         26
+  C:024BH         LINE#         31
+  C:024EH         LINE#         32
+  C:0251H         LINE#         36
+  C:0259H         LINE#         41
+  C:025CH         LINE#         42
+  -------         ENDPROC       CFGFSYS
+  -------         PROC          _MDELAYUS
+  D:0006H         SYMBOL        n
+  C:002BH         LINE#         51
+  C:002BH         LINE#         52
+  C:002BH         LINE#         64
+  C:002FH         LINE#         65
+  C:0031H         LINE#         98
+  C:0036H         LINE#         99
+  C:0038H         LINE#         100
+  -------         ENDPROC       _MDELAYUS
+  -------         PROC          _MDELAYMS
+  D:0004H         SYMBOL        n
+  C:0207H         LINE#         109
+  C:020DH         LINE#         110
+  C:020DH         LINE#         111
+  C:0211H         LINE#         116
+  C:0218H         LINE#         118
+  C:021DH         LINE#         119
+  C:021FH         LINE#         120
+  -------         ENDPROC       _MDELAYMS
+  -------         PROC          CH554UART0ALTER
+  C:0293H         LINE#         129
+  C:0293H         LINE#         130
+  C:0293H         LINE#         131
+  C:0296H         LINE#         132
+  -------         ENDPROC       CH554UART0ALTER
+  -------         PROC          MINITSTDIO
+  -------         DO            
+  D:0019H         SYMBOL        x
+  D:001DH         SYMBOL        x2
+  -------         ENDDO         
+  C:010CH         LINE#         142
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 4
+
+
+  C:010CH         LINE#         143
+  C:010CH         LINE#         147
+  C:010EH         LINE#         148
+  C:0110H         LINE#         149
+  C:0112H         LINE#         151
+  C:0114H         LINE#         152
+  C:0116H         LINE#         153
+  C:0119H         LINE#         154
+  C:0124H         LINE#         155
+  C:0139H         LINE#         156
+  C:0152H         LINE#         157
+  C:016AH         LINE#         159
+  C:0172H         LINE#         160
+  C:0175H         LINE#         161
+  C:017BH         LINE#         162
+  C:017DH         LINE#         163
+  C:017FH         LINE#         164
+  C:0181H         LINE#         165
+  -------         ENDPROC       MINITSTDIO
+  -------         PROC          CH554UART0RCVBYTE
+  C:0273H         LINE#         174
+  C:0273H         LINE#         175
+  C:0273H         LINE#         176
+  C:0276H         LINE#         177
+  C:0278H         LINE#         178
+  C:027AH         LINE#         179
+  -------         ENDPROC       CH554UART0RCVBYTE
+  -------         PROC          _CH554UART0SENDBYTE
+  D:0007H         SYMBOL        SendDat
+  C:027BH         LINE#         188
+  C:027BH         LINE#         189
+  C:027BH         LINE#         190
+  C:027DH         LINE#         191
+  C:0280H         LINE#         192
+  C:0282H         LINE#         193
+  -------         ENDPROC       _CH554UART0SENDBYTE
+  -------         PROC          UART1SETUP
+  C:0269H         LINE#         202
+  C:0269H         LINE#         203
+  C:0269H         LINE#         204
+  C:026BH         LINE#         205
+  C:026DH         LINE#         206
+  C:026FH         LINE#         207
+  C:0272H         LINE#         208
+  -------         ENDPROC       UART1SETUP
+  -------         PROC          CH554UART1RCVBYTE
+  C:0283H         LINE#         217
+  C:0283H         LINE#         218
+  C:0283H         LINE#         219
+  C:0286H         LINE#         220
+  C:0288H         LINE#         221
+  C:028AH         LINE#         222
+  -------         ENDPROC       CH554UART1RCVBYTE
+  -------         PROC          _CH554UART1SENDBYTE
+  D:0007H         SYMBOL        SendDat
+  C:028BH         LINE#         231
+  C:028BH         LINE#         232
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 5
+
+
+  C:028BH         LINE#         233
+  C:028DH         LINE#         234
+  C:0290H         LINE#         235
+  C:0292H         LINE#         236
+  -------         ENDPROC       _CH554UART1SENDBYTE
+  -------         PROC          _CH554WDTMODESELECT
+  D:0007H         SYMBOL        mode
+  C:0220H         LINE#         247
+  C:0220H         LINE#         248
+  C:0220H         LINE#         249
+  C:0223H         LINE#         250
+  C:0226H         LINE#         251
+  C:0229H         LINE#         252
+  C:022CH         LINE#         253
+  C:022EH         LINE#         254
+  C:0231H         LINE#         255
+  C:0234H         LINE#         256
+  C:0236H         LINE#         257
+  -------         ENDPROC       _CH554WDTMODESELECT
+  -------         PROC          _CH554WDTFEED
+  D:0007H         SYMBOL        tim
+  C:0297H         LINE#         268
+  C:0297H         LINE#         269
+  C:0297H         LINE#         270
+  C:0299H         LINE#         271
+  -------         ENDPROC       _CH554WDTFEED
+  -------         ENDMOD        DEBUG
+
+  -------         MODULE        MAIN
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  D:00E8H         PUBLIC        IE_EX
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        USB_INT_FG
+  C:0003H         PUBLIC        main
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:0092H         PUBLIC        P1_MOD_OC
+  D:00F8H         PUBLIC        SPI0_STAT
+  D:0093H         PUBLIC        P1_DIR_PU
+  B:0090H.5       PUBLIC        LED
+  D:0080H         PUBLIC        ADC_CTRL
+  D:00C0H         PUBLIC        SCON1
+  D:00C8H         PUBLIC        T2CON
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          MAIN
+  C:0003H         LINE#         18
+  C:0003H         LINE#         19
+  C:0003H         LINE#         21
+  C:0006H         LINE#         22
+  C:000DH         LINE#         23
+  C:0010H         LINE#         24
+  C:0013H         LINE#         25
+  C:0016H         LINE#         29
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 6
+
+
+  C:0019H         LINE#         30
+  C:001BH         LINE#         32
+  C:001BH         LINE#         33
+  C:001BH         LINE#         34
+  C:0022H         LINE#         35
+  C:0024H         LINE#         36
+  C:0029H         LINE#         40
+  -------         ENDPROC       MAIN
+  -------         ENDMOD        MAIN
+
+  -------         MODULE        TOUCHKEY
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0090H         PUBLIC        P1
+  D:00B0H         PUBLIC        P3
+  C:01CCH         PUBLIC        TouchKeyInterrupt
+  D:00E8H         PUBLIC        IE_EX
+  D:00A8H         PUBLIC        IE
+  D:00B8H         PUBLIC        IP
+  D:00D8H         PUBLIC        USB_INT_FG
+  B:00E8H.1       PUBLIC        IE_TKEY
+  D:0010H         PUBLIC        KeyFree
+  D:0098H         PUBLIC        SCON
+  D:0088H         PUBLIC        TCON
+  D:00F8H         PUBLIC        SPI0_STAT
+  D:0018H         PUBLIC        KeyBuf
+  C:0237H         PUBLIC        _TouchKeyChannelSelect
+  D:00C3H         PUBLIC        TKEY_CTRL
+  D:0080H         PUBLIC        ADC_CTRL
+  D:00C0H         PUBLIC        SCON1
+  D:00C8H         PUBLIC        T2CON
+  D:00C4H         PUBLIC        TKEY_DAT
+  C:0182H         PUBLIC        GetTouckKeyFreeBuf
+  D:00D0H         PUBLIC        PSW
+  -------         PROC          GETTOUCKKEYFREEBUF
+  -------         DO            
+  D:0006H         SYMBOL        i
+  D:0005H         SYMBOL        j
+  D:0007H         SYMBOL        TmpSum
+  -------         ENDDO         
+  C:0182H         LINE#         27
+  C:0182H         LINE#         28
+  C:0182H         LINE#         30
+  C:0184H         LINE#         31
+  C:0186H         LINE#         32
+  C:0187H         LINE#         33
+  C:0187H         LINE#         34
+  C:0189H         LINE#         35
+  C:0191H         LINE#         36
+  C:0198H         LINE#         37
+  C:0198H         LINE#         38
+  C:019DH         LINE#         39
+  C:01A4H         LINE#         40
+  C:01A6H         LINE#         41
+  C:01C5H         LINE#         42
+  C:01C9H         LINE#         44
+  C:01CBH         LINE#         46
+  -------         ENDPROC       GETTOUCKKEYFREEBUF
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 7
+
+
+  -------         PROC          _TOUCHKEYCHANNELSELECT
+  D:0007H         SYMBOL        ch
+  C:0237H         LINE#         57
+  C:0237H         LINE#         58
+  C:0237H         LINE#         59
+  C:023DH         LINE#         60
+  C:023DH         LINE#         61
+  C:0245H         LINE#         62
+  C:0248H         LINE#         63
+  C:0248H         LINE#         64
+  C:024AH         LINE#         65
+  -------         ENDPROC       _TOUCHKEYCHANNELSELECT
+  -------         PROC          TOUCHKEYINTERRUPT
+  -------         DO            
+  D:000DH         SYMBOL        ch
+  D:000EH         SYMBOL        KeyData
+  -------         ENDDO         
+  C:01CCH         LINE#         72
+  C:01D3H         LINE#         77
+  C:01D7H         LINE#         78
+  C:01DCH         LINE#         79
+  C:01E1H         LINE#         80
+  C:01E4H         LINE#         81
+  C:01E6H         LINE#         83
+  C:01E6H         LINE#         84
+  C:01E8H         LINE#         85
+  C:01E8H         LINE#         86
+  C:0200H         LINE#         87
+  C:0200H         LINE#         88
+  C:0202H         LINE#         89
+  C:0202H         LINE#         90
+  -------         ENDPROC       TOUCHKEYINTERRUPT
+  -------         ENDMOD        TOUCHKEY
+
+  -------         MODULE        ?C?ULDIV
+  C:007AH         PUBLIC        ?C?ULDIV
+  -------         ENDMOD        ?C?ULDIV
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?CH554UART0ALTER?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?MINITSTDIO?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?CH554UART0RCVBYTE?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CH554UART0SENDBYTE?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?CH554UART1RCVBYTE?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_CH554WDTMODESELECT?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+BL51 BANKED LINKER/LOCATER V6.22                                                      05/16/2017  09:17:04  PAGE 8
+
+
+    SEGMENT: ?PR?_CH554WDTFEED?DEBUG
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?GETTOUCKKEYFREEBUF?TOUCHKEY
+
+*** WARNING L16: UNCALLED SEGMENT, IGNORED FOR OVERLAY PROCESS
+    SEGMENT: ?PR?_TOUCHKEYCHANNELSELECT?TOUCHKEY
+
+Program Size: data=31.0 xdata=0 code=664
+LINK/LOCATE RUN COMPLETE.  9 WARNING(S),  0 ERROR(S)

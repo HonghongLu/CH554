@@ -1,0 +1,156 @@
+C51 COMPILER V9.02   TOUCHKEY                                                              05/16/2017 09:15:11 PAGE 1   
+
+
+C51 COMPILER V9.02, COMPILATION OF MODULE TOUCHKEY
+OBJECT MODULE PLACED IN TouchKey.OBJ
+COMPILER INVOKED BY: C:\Keilc51\C51\BIN\C51.EXE TouchKey.C BROWSE NOAREGS DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          
+   2          /********************************** (C) COPYRIGHT *******************************
+   3          * File Name          : TouchKey.C
+   4          * Author             : WCH
+   5          * Version            : V1.0
+   6          * Date               : 2017/01/20
+   7          * Description        : CH554 ´¥Ãþ°´¼ü²ÉÑù¼ä¸ôÉèÖÃ¡¢Í¨µÀÑ¡ÔñºÍÇÐ»»ºÍÖÐ¶Ï´¦Àíº¯Êý   
+   8          *******************************************************************************/
+   9          
+  10          #include "CH554.H"                                                       
+  11          #include "Debug.H"
+  12          #include "TouchKey.H"
+  13          #include <stdio.h>
+  14          
+  15          #pragma  NOAREGS
+  16          
+  17          UINT16  KeyFree[KEY_LAST-KEY_FIRST+1];                                        //´¥Ãþ¿ÕÏÐÖµ´æ´¢£¬ÓÃÓÚ±È½Ï°´¼
+             -ü×´Ì¬£¬Èç¹û²ÉÑùÖµÐ¡ÓÚ»ù×¼Öµ±íÃ÷°´¼ü°´ÏÂ
+  18          UINT8V  KeyBuf;                                                               //´¥Ãþ°´¼ü×´Ì¬£¬Îª0±íÊ¾ÎÞ°´¼ü
+             -£¬·Ç0±íÊ¾µ±Ç°¼ì²â°´¼ü±»°´ÏÂ
+  19          
+  20          /*******************************************************************************
+  21          * Function Name  : GetTouckKeyFreeBuf()
+  22          * Description    : »ñÈ¡´¥Ãþ°´¼ü¿Õ¼ä×´Ì¬¼üÖµ
+  23          * Input          : None                                                          
+  24          * Output         : None
+  25          * Return         : None
+  26          *******************************************************************************/
+  27          void GetTouckKeyFreeBuf()
+  28          {
+  29   1        UINT8 i,j;
+  30   1        UINT8 TmpSum = 0;
+  31   1        KeyBuf = 0;                                                                 //³õÊ¼»¯ÉèÖÃÎªÎÞ°´¼ü×´Ì¬
+  32   1        for(i=KEY_FIRST;i<(KEY_LAST+1);i++)
+  33   1        {
+  34   2                      j = KEY_BASE_SAMPLE_TIME;                                                 //²É¶à´ÎÇóÆ½¾ùÖµ×÷Îª²ÉÑù²Î¿¼
+  35   2                TKEY_CTRL = (TKEY_CTRL & 0xF8 | i)+1;                                     //ÉèÖÃ²ÉÑùÍ¨µÀ
+  36   2          while(j--)
+  37   2          {
+  38   3              while((TKEY_CTRL&bTKC_IF) == 0);                                      //bTKC_IF±äÎª1Ê±£¬±¾ÖÜÆÚ²ÉÑù
+             -Íê³É
+  39   3              TmpSum += TKEY_DAT&0x0F;                                              //²ÉÑùÖµÎÈ¶¨£¬È¡µÍ4Î»¾Í¹»ÁË
+  40   3          }           
+  41   2          KeyFree[i] = TKEY_DAT&0x07F0 + TmpSum/5;                                  //±£´æ²ÉÑùÖµ 
+  42   2        }
+  43   1      #if INTERRUPT_TouchKey
+  44   1          IE_TKEY = 1;                                                              //Ê¹ÄÜTouch_KeyÖÐ¶Ï
+  45   1      #endif   
+  46   1      }
+  47          
+  48          /*******************************************************************************
+  49          * Function Name  : TouchKeyChannelSelect(UINT8 ch)
+  50          * Description    : ´¥Ãþ°´¼üÍ¨µÀÑ¡Ôñ
+  51          * Input          : UINT8 ch ²ÉÓÃÍ¨µÀ
+  52                             0~5 ·Ö±ð´ú±í²ÉÑùÍ¨µÀ
+C51 COMPILER V9.02   TOUCHKEY                                                              05/16/2017 09:15:11 PAGE 2   
+
+  53          * Output         : None
+  54          * Return         : ³É¹¦ SUCCESS
+  55                             Ê§°Ü FAIL  ²»Ö§³ÖµÄÍ¨µÀ
+  56          *******************************************************************************/
+  57          UINT8 TouchKeyChannelSelect(UINT8 ch)
+  58          {
+  59   1          if(ch < 6)
+  60   1          {
+  61   2              TKEY_CTRL = (TKEY_CTRL & 0xF8 | ch)+1;
+  62   2              return SUCCESS;                 
+  63   2          }
+  64   1          return FAIL;
+  65   1      }
+  66          
+  67          #if INTERRUPT_TouchKey
+  68          /*******************************************************************************
+  69          * Function Name  : TouchKeyInterrupt(void)
+  70          * Description    : Touch_Key ÖÐ¶Ï·þÎñ³ÌÐò
+  71          *******************************************************************************/
+  72          void    TouchKeyInterrupt( void ) interrupt INT_NO_TKEY using 1                //Touch_KeyÖÐ¶Ï·þÎñ³ÌÐò,Ê¹ÓÃ¼Ä
+             -´æÆ÷×é1
+  73          { 
+  74   1                UINT8 ch;
+  75   1          UINT16 KeyData;
+  76   1      
+  77   1          KeyData = TKEY_DAT;                                                       //±£³Ö87us,¾¡¿ìÈ¡×ß
+  78   1          ch = TKEY_CTRL&7;                                                         //»ñÈ¡µ±Ç°²ÉÑùÍ¨µÀ
+  79   1          if ( ch > KEY_LAST ){
+  80   2             TKEY_CTRL = TKEY_CTRL & 0xF8 | KEY_FIRST;                              //´ÓÊ×Í¨µÀ¿ªÊ¼²ÉÑù
+  81   2          }                   
+  82   1          else
+  83   1          {
+  84   2             TKEY_CTRL ++;                                                          //ÇÐ»»ÖÁÏÂÒ»¸ö²ÉÑùÍ¨µÀ
+  85   2          }
+  86   1          if ( KeyData < (KeyFree[ch-KEY_FIRST] - KEY_ACT) )                        //ÈçÌõ¼þÂú×ã£¬´ú±í°´¼ü°´ÏÂ  
+             - 
+  87   1          {
+  88   2              KeyBuf=ch;                                                            //¿ÉÒÔÔÚ´Ë´¦½øÐÐ°´¼ü¶¯×÷´¦Àí
+             -»òÕßÖÃ±êÖ¾Í¨Öªmain½øÐÐ´¦Àí
+  89   2          }
+  90   1      }
+  91          #else
+              /*******************************************************************************
+              * Function Name  : TouchKeyChannelQuery()
+              * Description    : ´¥Ãþ°´¼üÍ¨µÀ×´Ì¬²éÑ¯
+              * Input          : None
+              * Output         : None
+              * Return         : None
+              *******************************************************************************/
+              void TouchKeyChannelQuery()
+              {
+                        UINT8 ch;
+                  UINT16 KeyData;
+              
+                  while((TKEY_CTRL&bTKC_IF) == 0);                                          //bTKC_IF±äÎª1Ê±£¬±¾ÖÜÆÚ²ÉÑù
+             -Íê³É
+                  KeyData = TKEY_DAT;                                                       //±£³Ö87us,¾¡¿ìÈ¡×ß
+                  ch = TKEY_CTRL&7;                                                         //»ñÈ¡µ±Ç°²ÉÑùÍ¨µÀ
+                  if ( ch > KEY_LAST ){
+                     TKEY_CTRL = TKEY_CTRL & 0xF8 | KEY_FIRST;                              //´ÓÊ×Í¨µÀ¿ªÊ¼²ÉÑù
+                  }                   
+                  else
+C51 COMPILER V9.02   TOUCHKEY                                                              05/16/2017 09:15:11 PAGE 3   
+
+                  {
+                     TKEY_CTRL ++;                                                          //ÇÐ»»ÖÁÏÂÒ»¸ö²ÉÑùÍ¨µÀ
+                  }
+                  if ( KeyData < (KeyFree[ch-KEY_FIRST] - KEY_ACT) )                        //ÈçÌõ¼þÂú×ã£¬´ú±í°´¼ü°´ÏÂ  
+             - 
+                  {
+                      KeyBuf=ch;                                                            //¿ÉÒÔÔÚ´Ë´¦½øÐÐ°´¼ü¶¯×÷´¦Àí
+             -»òÕßÖÃ±êÖ¾Í¨Öªmain½øÐÐ´¦Àí
+                  }
+              }
+              #endif
+ 120          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    153    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      9    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

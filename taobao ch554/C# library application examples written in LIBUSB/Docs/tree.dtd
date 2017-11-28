@@ -1,0 +1,13 @@
+<!ELEMENT assembly (tree+)>
+<!ATTLIST assembly name CDATA #REQUIRED>
+<!ATTLIST assembly version CDATA #REQUIRED>
+<!ELEMENT tree (branch+)>
+<!ELEMENT branch (branchText,(branch|leaf)*)>
+<!ATTLIST branch id CDATA #REQUIRED>
+<!ATTLIST branch children CDATA #REQUIRED>
+<!ELEMENT branchText (#PCDATA)>
+<!ATTLIST branchText ObjectType CDATA "">
+<!ELEMENT leaf (leafText,link,javaLink)>
+<!ELEMENT leafText (#PCDATA)>
+<!ELEMENT link (#PCDATA)>
+<!ELEMENT javaLink (#PCDATA)>

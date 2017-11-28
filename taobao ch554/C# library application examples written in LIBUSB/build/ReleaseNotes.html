@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>LibUsbDotNet Changes</title>
+</head>
+
+<body>
+<strong>Changes</strong> in <strong>LibUsbDotNet</strong> v1.0.1
+<br/>Release Date: 10-06-2007<br />
+<ul>
+<li><strong>Ported to C#2.0</strong>! Many API changes. See documentation. </li>
+<li>Added Test_DeviceNotify sample project. </li>
+<li>Fixed mising data issue with the DataReceived event.</li>
+<li>Rebuilt libusb  core components with WINDDK 2003 (SP1).</li>
+<li>Added Itanium 64bit support. </li>
+<li>Fixed x64 installation error.</li>
+</ul>
+
+<br/><hr/><br/>
+<strong>Changes</strong> in <strong>LibUsbDotNet</strong> v0.1.4
+<br/>Release Date: 07-18-2007<br />
+<ul><li>Debug runtimes  removed from the distributions to avoid confusion. </li>
+<li>New Class Added. The <strong>DeviceNotify</strong> class is used for receiving device insertion/removal events.  See documentation for full details.</li>
+</ul>
+
+<br/><hr/><br/>
+
+<strong>Changes</strong> in <strong>LibUsbDotNet</strong> v0.1.3b
+<br/>Release Date: 01-04-2007<br />
+<ul>
+<li>Added lock routines to internal read/write functions to increase multi-threading stability.</li>
+<li>Removed dependencies on msvcmrt.lib.</li>
+<li>Project defaults changed to compiled with /clr:pure syntax.</li>
+<li>Added 64bit support.</li>
+<li>Fixed function ClibUsb.Open(InfoDevice). It will now open different devices with the same vendor and product id.</li>
+<li>Added remove functions to the CLibUsb.ActiveEndPoints property (CEndPonts class)</li>
+</ul>
+</body>
+</html>

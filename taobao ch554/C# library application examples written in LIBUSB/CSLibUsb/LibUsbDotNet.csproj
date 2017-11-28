@@ -1,0 +1,94 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CDDECA76-F318-4CE1-8251-CAB0C799CBBE}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LibUsbDotNet</RootNamespace>
+    <AssemblyName>LibUsbDotNet</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\LibUsbDotNet.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>..\bin\Release\LibUsbDotNet.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DeviceNotify\DeviceNotifier.cs" />
+    <Compile Include="DeviceNotify\DeviceNotifyEventArgs.cs" />
+    <Compile Include="DeviceNotify\Info\PortNotifyInfo.cs" />
+    <Compile Include="DeviceNotify\Info\UsbDeviceNotifyInfo.cs" />
+    <Compile Include="DeviceNotify\Info\VolumeNotifyInfo.cs" />
+    <Compile Include="DeviceNotify\Internal\DevNotifyNativeWindow.cs" />
+    <Compile Include="DeviceNotify\Internal\Dev_Broadcast.cs" />
+    <Compile Include="DeviceNotify\Internal\SafeNotifyHandle.cs" />
+    <Compile Include="Usb\Info\InfoConfig.cs" />
+    <Compile Include="Usb\Info\InfoDevice.cs" />
+    <Compile Include="Usb\Info\InfoEndPoint.cs" />
+    <Compile Include="Usb\Info\InfoInterface.cs" />
+    <Compile Include="Usb\Info\InfosBase.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_Context.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_DevHandle.cs" />
+    <Compile Include="Usb\Internal\EndpointTypes.cs" />
+    <Compile Include="Usb\Internal\Helper.cs" />
+    <Compile Include="Usb\Internal\HexDisplayAttribute.cs" />
+    <Compile Include="Usb\Internal\LibUsbConst.cs" />
+    <Compile Include="Usb\Main\DataReceivedArgs.cs" />
+    <Compile Include="Usb\Main\ErrorCodes.cs" />
+    <Compile Include="Usb\Main\LibUsbException.cs" />
+    <Compile Include="Usb\Main\ReadEndpoints.cs" />
+    <Compile Include="Usb\Main\UsbDeviceList.cs" />
+    <Compile Include="Usb\Main\UsbEndpointList.cs" />
+    <Compile Include="Usb\Main\UsbSymbolicName.cs" />
+    <Compile Include="Usb\Main\WriteEndpoints.cs" />
+    <Compile Include="Usb\Internal\TransferContext.cs" />
+    <Compile Include="Usb\UsbEndpointBase.cs" />
+    <Compile Include="Usb\UsbEndpointReader.cs" />
+    <Compile Include="Usb\UsbEndpointWriter.cs" />
+    <Compile Include="Usb\Main\UsbError.cs" />
+    <Compile Include="Usb\UsbGlobals.cs" />
+    <Compile Include="Usb\Internal\API\LibUsbAPI.cs" />
+    <Compile Include="Usb\Internal\API\LibUsbBus.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_ConfigDescriptor.cs" />
+    <Compile Include="Usb\Internal\API\LibUsbDevice.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_DeviceDescriptor.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_EndpointDescriptor.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_InterfaceDescriptor.cs" />
+    <Compile Include="Usb\Internal\API\LibUsb_AltInterfaceDescriptor.cs" />
+    <Compile Include="Usb\UsbDevice.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>"$(SolutionDir)Utility\NetBuildInfo" -makeinfo"$(SolutionDir)build\LibUsbDotNet.info.xml" "$(DevEnvDir)?$(SolutionDir)?LibUsbDotNet?$(TargetName)?$(TargetExt)?$(TargetDir)?$(TargetPath)"</PostBuildEvent>
+  </PropertyGroup>
+</Project>

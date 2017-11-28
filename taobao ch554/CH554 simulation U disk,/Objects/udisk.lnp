@@ -1,0 +1,4 @@
+".\Objects\u_disk.obj",
+".\Objects\DEBUG.obj" 
+TO ".\Objects\udisk" 
+PRINT(".\Listings\udisk.m51") RAMSIZE(256) 

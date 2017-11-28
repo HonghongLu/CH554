@@ -1,0 +1,4 @@
+".\Objects\CDC.obj",
+".\Objects\DEBUG.obj" 
+TO ".\Objects\CDC" 
+PRINT(".\Listings\CDC.m51") RAMSIZE(256) 

@@ -1,0 +1,90 @@
+body
+{
+	color: navy;
+	font-family: Tahoma, Arial, Sans-Serif;
+}
+.trigger
+{
+	cursor: pointer;
+	cursor: hand;
+}
+.triggerText
+{
+	cursor: pointer;
+	cursor: hand;
+	font-family: Tahoma;
+	font-size: 12px;
+	font-weight: normal;
+}
+.triggerBranchText
+{
+	cursor: pointer;
+	cursor: hand;
+	font-family: Tahoma;
+	font-size: 12px;
+	font-weight: bold;
+}
+.branch
+{
+	display: none;
+	margin-left: 16px;
+}
+a
+{
+	text-decoration: none;
+}
+a:hover
+{
+	text-decoration: underline;
+}
+
+.cAssemblyName
+{
+	font-family: Tahoma, Arial, Sans-Serif;
+	font-size: 20px;
+	font-weight: bold;
+	color: Blue;
+}
+.cAssemblyVersionText
+{
+	font-family: Tahoma, Arial, Sans-Serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: purple;
+}
+.cAssemblyVersionTitle
+{
+	font-family: Tahoma, Arial, Sans-Serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: red;
+}
+table.mainTable
+{
+	border-width: 3px;
+	border-style: groove;
+	border-color: Blue;
+	border-collapse: collapse;
+	background-color: #f0f0ff;
+	color: #000000;
+}
+table.mainTable td 
+{
+	border-width: 3px;
+	padding:2px;
+}
+table.treeTable
+{
+	border-width: 0px;
+	background-color: #f0f0ff;
+}
+table.treeTable td 
+{
+	border-width:0px;
+	padding:0px;
+	vertical-align:middle;
+}
+.cObjectType
+{
+	color: #cd853f;
+}

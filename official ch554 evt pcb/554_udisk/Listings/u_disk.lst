@@ -1,0 +1,971 @@
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 1   
+
+
+C51 COMPILER V9.53.0.0, COMPILATION OF MODULE U_DISK
+OBJECT MODULE PLACED IN .\Objects\u_disk.obj
+COMPILER INVOKED BY: D:\Keil\Install\C51\BIN\C51.EXE u_disk.c LARGE OPTIMIZE(8,SPEED) BROWSE INCDIR(.\Public) DEBUG OBJE
+                    -CTEXTEND PRINT(.\Listings\u_disk.lst) OBJECT(.\Objects\u_disk.obj)
+
+line level    source
+
+   1          /********************************** (C) COPYRIGHT *******************************
+   2          * File Name          : udisk.c
+   3          * Author             : WCH
+   4          * Version            : V1.0
+   5          * Date               : 2017/03/08
+   6          * Description        : CH554Ä£ÄâUÅÌ
+   7          *******************************************************************************/
+   8          #include "CH554.H"
+   9          #include "DEBUG.H"
+  10          #include <stdio.h>
+  11          #include <string.h>
+  12          #pragma  NOAREGS
+  13          
+  14          UINT8X  Ep0Buffer[DEFAULT_ENDP0_SIZE] _at_ 0x0000; 
+  15          UINT8X  Ep1Buffer[2*MAX_PACKET_SIZE] _at_ DEFAULT_ENDP0_SIZE;
+  16          
+  17          UINT8   UsbConfig = 0; 
+  18          #define UsbSetupBuf     ((PUSB_SETUP_REQ)Ep0Buffer)
+  19          
+  20          /*Éè±¸ÃèÊö·û*/
+  21          UINT8C  MyDevDescr[] = { 0x12, 0x01, 0x10, 0x01,
+  22                                   0x00, 0x00, 0x00, DEFAULT_ENDP0_SIZE,
+  23                                   0x44, 0x33, 0x33, 0x35,                              // ³§ÉÌIDºÍ²úÆ·ID
+  24                                   0x00, 0x01, 0x01, 0x02,
+  25                                   0x00, 0x01
+  26                                 };
+  27          /*ÅäÖÃÃèÊö·û*/
+  28          UINT8C  MyCfgDescr[] = { 0x09, 0x02, 0x20, 0x00, 0x01, 0x01, 0x00, 0xa0, 0x32,
+  29                                   0x09, 0x04, 0x00, 0x00, 0x02, 0x08, 0x06, 0x50, 0x00,                     
+  30                                   0x07, 0x05, 0x01, 0x02, 0x40, 0x00, 0x00,
+  31                                   0x07, 0x05, 0x81, 0x02, 0x40, 0x00, 0x00
+  32                                 };
+  33          /*ÓïÑÔÃèÊö·û*/
+  34          UINT8C  MyLangDescr[] = { 0x04, 0x03, 0x09, 0x04 };
+  35          /*³§¼ÒÐÅÏ¢*/
+  36          UINT8C  MyManuInfo[] = { 0x0E, 0x03, 'w', 0, 'c', 0, 'h', 0, '.', 0, 'c', 0, 'n', 0 };
+  37          /*²úÆ·ÐÅÏ¢*/
+  38          UINT8C  MyProdInfo[] = { 0x0C, 0x03, 'C', 0, 'H', 0, '5', 0, '5', 0, '4', 0 };
+  39          
+  40          UINT8C  MAX_LUN[] = {0};
+  41          
+  42          //INQUIRY inform
+  43          UINT8C  DBINQUITY[]={
+  44                                                          0x00,             //Peripheral Device Type
+  45                                                          0x80,                   //
+  46                                                          0x02 ,                  //ISO/ECMA
+  47                                                          0x02 ,                  //
+  48                                                          0x1f ,                  //Additional Length
+  49          
+  50                                                          00 ,                    //Reserved
+  51                                                          00 ,                    //Reserved
+  52                                                          00 ,                            //Reserved
+  53          
+  54          
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 2   
+
+  55                                                      'w' ,                       //Vendor Information
+  56                                                          'c' ,                   //
+  57                                                          'h' ,                   //
+  58                                                          '.' ,                   //
+  59                                                          'c' ,                   //
+  60                                                          'n' ,                   //
+  61                                                          ' ' ,                   //
+  62                                                          ' ' ,                   //
+  63          
+  64          
+  65                                              0xc7,                       //Product Identification
+  66                                                          0xdf,                   //
+  67                                                          0xba,                   //
+  68                                                          0xe3,                   //
+  69                                                          0xb5,                   //
+  70                                                          0xe7,                   //
+  71                                                          0xd7,                   //
+  72                                                          0xd3,                   //
+  73                                                          0x55,                   //
+  74                                                          0xc5,                   //
+  75                                                          0xcc,                   //
+  76                                                          0xb7,                   //
+  77                                                          0xbd,                   //
+  78                                                          0xb0,                   //
+  79                                                          0xb8,                   //
+  80                                                          0x00,          //
+  81          
+  82                                          '1' ,                   //Product Revision Level
+  83                                                          '.' ,                   //
+  84                                                          '1' ,                   //
+  85                                                          '0'                     //
+  86                                                            };
+  87          UINT8C DBFORMATCAP[]={0x00,0x00,0x00,0x08,0x00,0xec,0xdf,0xff,0x03,0x00,0x02,0x00}; //¿É¸ñÊ½»¯ÈÝÁ¿
+  88          UINT8C DBCAPACITY[]={0x00,0xec,0xdf,0xff,0x00,0x00,0x02,0x00};
+  89          UINT8C modesense3F[]={0x0b, 0x00, 0x80, 0x08, 0x00,0x00,0x00,0x00,0x00, 0x00, 0x02, 0x00 };   //Ð´±£»¤(0x8
+             -0»»³É0x00¿ÉÒÔÈ¥³ýÐ´±£»¤)
+  90          UINT8C DBR[512]={
+  91                               0xeb,0xfe,0x90,0x4d,0x53,0x44,0x4f,0x53, 0x35,0x2e,0x30,0x00,0x02,0x08,0x20,0x00,
+  92                           0x02,0x00,0x00,0x00,0x00,0xf0,0x00,0x00, 0x3f,0x00,0xff,0x00,0x00,0x00,0x00,0x00,
+  93                                           0x00,0xe0,0xec,0x00,0x39,0x3b,0x00,0x00, 0x00,0x00,0x00,0x00,0x02,0x00,0x00,0x00,
+  94                                           0x01,0x00,0x06,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+  95                                           0x80,0x00,0x29,0x00,0x00,0x8a,0x49,0x4e, 0x4f,0x20,0x4e,0x41,0x4d,0x45,0x20,0x20,
+  96                                           0x20,0x20,0x46,0x41,0x54,0x33,0x32,0x20, 0x20,0x20,0x00,0x00,0x00,0x00,0x00,0x00,
+  97                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+  98                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+  99                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 100                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 101                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 102                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 103                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 104                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 105                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 106                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 107                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 108                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 109                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 110                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 111                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 112                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 113                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 114                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 115                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 3   
+
+ 116                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 117                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 118                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 119                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 120                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 121                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 122                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x55,0xaa,
+ 123          };
+ 124          UINT8C FAT[512]={
+ 125                               0xF0,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, 0xFF,0xFF,0xFF,0x0F,0x00,0x00,0x00,0x00,
+ 126                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 127                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 128                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 129                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 130                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 131                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 132                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 133                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 134                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 135                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 136                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 137                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 138                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 139                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 140                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 141                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 142                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 143                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 144                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 145                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 146                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 147                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 148                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 149                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 150                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 151                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 152                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 153                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 154                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 155                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+ 156                                           0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,      
+ 157          };
+ 158          
+ 159          //UFIÍ¨Ñ¶
+ 160          #define FORMAT_UNIT     0x04
+ 161          #define INQUIRY                 0x12
+ 162          #define FORMATCAP               0x23                                              
+ 163          #define MODE_SELECT     0x15
+ 164          #define MODE_SENSE5     0x5A
+ 165          #define MODE_SENSE              0x1A
+ 166          #define PER_RES_IN              0x5E
+ 167          #define PER_RES_OUT     0x5F
+ 168          #define PRE_OR_MED              0x1E
+ 169          #define READ                    0x28
+ 170          #define READ_CAPACITY   0x25
+ 171          #define RELEASE                 0x17
+ 172          #define REQUEST_SENSE   0x03
+ 173          #define RESERVE                 0x16
+ 174          #define STA_STO_UNIT    0x1B
+ 175          #define SYN_CACHE               0x35
+ 176          #define TEST_UNIT               0x00
+ 177          #define VERIFY                  0x2F
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 4   
+
+ 178          #define WRITE                   0x2A
+ 179          #define WRITE_BUFFER    0x3B
+ 180          
+ 181          typedef union _CBWCB{
+ 182                  unsigned char buf1[16];
+ 183          }CBWCB;
+ 184          typedef  union _MASS_PARA {
+ 185                  unsigned char buf[64];
+ 186                  struct  _SENSE{
+ 187                          unsigned char ErrorCode;
+ 188                          unsigned char Reserved1;
+ 189                          unsigned char SenseKey;
+ 190                          unsigned char Information[4];
+ 191                          unsigned char AddSenseLength;
+ 192                          unsigned char Reserved2[4];
+ 193                          unsigned char AddSenseCode;
+ 194                          unsigned char AddSenseCodeQua;
+ 195                          unsigned char Reserved3[4];
+ 196                  }Sense;
+ 197                  struct  _CBW{
+ 198                  unsigned char dCBWsig[4];
+ 199                  unsigned char dCBWTag[4];
+ 200                  unsigned long dCBWDatL;
+ 201                  unsigned char bmCBWFlags;
+ 202                  unsigned char bCBWLUN;
+ 203                  unsigned char bCBWCBLength;
+ 204                  CBWCB        cbwcb;
+ 205                  }cbw;
+ 206                          struct _CSW{
+ 207                          unsigned char buf2[13];
+ 208                  }csw;
+ 209          }MASS_PARA;
+ 210          
+ 211          union {
+ 212          unsigned long mDataLength;                                                      //Êý¾Ý³¤¶È
+ 213          unsigned char mdataLen[4];                                                      //
+ 214          } UFI_Length;
+ 215          unsigned char mdCBWTag[4];                                                  //dCBWTag
+ 216          MASS_PARA  MassPara;
+ 217          bit CH375BULKUP=0;                                                                      //Êý¾ÝÉÏ´«
+ 218          bit CH375BULKDOWN = 0;                                                 //Êý¾ÝÏÂ´«                                                 
+ 219          bit CH375CSW=0;                                                                         //CSWÉÏ´«±êÖ¾
+ 220          unsigned char   BcswStatus;                                                     //CSW×´Ì¬
+ 221          unsigned char mSenseKey;
+ 222          unsigned char mASC;
+ 223          
+ 224          unsigned char *pBuf;
+ 225          
+ 226          unsigned long SecNum;                              //µ±Ç°²Ù×÷µÄÉÈÇøºÅ
+ 227                          
+ 228          /*******************************************************************************
+ 229          * Function Name  : InitUSB_Device()
+ 230          * Description    : USBÉè±¸Ä£Ê½ÅäÖÃ
+ 231          * Input          : None
+ 232          * Output         : None
+ 233          * Return         : None
+ 234          *******************************************************************************/
+ 235          void InitUSB_Device( void )                                                      // ³õÊ¼»¯USBÉè±¸
+ 236          {
+ 237   1          USB_CTRL = 0x00;                                                           //Çå¿ÕUSB¿ØÖÆ¼Ä´æÆ÷
+ 238   1          USB_CTRL &= ~bUC_HOST_MODE;                                                //¸ÃÎ»ÎªÑ¡ÔñÉè±¸Ä£Ê½
+ 239   1          USB_CTRL |=  bUC_DEV_PU_EN | bUC_INT_BUSY | bUC_DMA_EN;                    //USBÉè±¸ºÍÄÚ²¿ÉÏÀ­Ê¹ÄÜ,ÔÚÖ
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 5   
+
+             -Ð¶ÏÆÚ¼äÖÐ¶Ï±êÖ¾Î´Çå³ýÇ°×Ô¶¯·µ»ØNAK
+ 240   1          USB_DEV_AD = 0x00;                                                         //Éè±¸µØÖ·³õÊ¼»¯
+ 241   1      //     USB_CTRL |= bUC_LOW_SPEED;
+ 242   1      //     UDEV_CTRL |= bUD_LOW_SPEED;                                                //Ñ¡ÔñµÍËÙ1.5MÄ£Ê½
+ 243   1          USB_CTRL &= ~bUC_LOW_SPEED;
+ 244   1          UDEV_CTRL &= ~bUD_LOW_SPEED;                                             //Ñ¡ÔñÈ«ËÙ12MÄ£Ê½£¬Ä¬ÈÏ·½Ê½
+ 245   1                UDEV_CTRL = bUD_PD_DIS;  // ½ûÖ¹DP/DMÏÂÀ­µç×è
+ 246   1          UDEV_CTRL |= bUD_PORT_EN;                                                  //Ê¹ÄÜÎïÀí¶Ë¿Ú
+ 247   1      
+ 248   1              UEP1_DMA = Ep1Buffer;                                                      //¶Ëµã1 Êý¾Ý´«ÊäµØÖ·
+ 249   1          UEP4_1_MOD = 0xC0;                                                         //¶Ëµã1ÉÏÏÂ´«»º³åÇø£»¶Ëµã0µ
+             -¥64×Ö½ÚÊÕ·¢»º³åÇø
+ 250   1          UEP1_CTRL = bUEP_AUTO_TOG | UEP_T_RES_NAK | UEP_R_RES_ACK;                 //¶Ëµã1×Ô¶¯·­×ªÍ¬²½±êÖ¾Î»£¬
+             -INÊÂÎñ·µ»ØNAK£¬OUT·µ»ØACK
+ 251   1              UEP0_DMA = Ep0Buffer;                                                      //¶Ëµã0Êý¾Ý´«ÊäµØÖ·
+ 252   1          UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;                                 //ÊÖ¶¯·­×ª£¬OUTÊÂÎñ·µ»ØACK£
+             -¬INÊÂÎñ·µ»ØNAK
+ 253   1              UEP0_T_LEN = 0;
+ 254   1          UEP1_T_LEN = 0;                                                            //Ô¤Ê¹ÓÃ·¢ËÍ³¤¶ÈÒ»¶¨ÒªÇå¿Õ
+ 255   1              
+ 256   1          USB_INT_EN |= bUIE_SUSPEND;                                               //Ê¹ÄÜÉè±¸¹ÒÆðÖÐ¶Ï
+ 257   1          USB_INT_EN |= bUIE_TRANSFER;                                              //Ê¹ÄÜUSB´«ÊäÍê³ÉÖÐ¶Ï
+ 258   1          USB_INT_EN |= bUIE_BUS_RST;                                               //Ê¹ÄÜÉè±¸Ä£Ê½USB×ÜÏß¸´Î»ÖÐ¶
+             -Ï
+ 259   1          USB_INT_FG |= 0x1F;                                                       //ÇåÖÐ¶Ï±êÖ¾
+ 260   1          IE_USB = 1;                                                               //Ê¹ÄÜUSBÖÐ¶Ï
+ 261   1          EA = 1;                                                                   //ÔÊÐíµ¥Æ¬»úÖÐ¶Ï  
+ 262   1      }
+ 263          /*******************************************************************************
+ 264          * Function Name  : UFI_Hunding
+ 265          * Description    : ÃüÁîµÄ·ÖÀàÓëÊ¶±ð UFI  CMD
+ 266          * Input          : None
+ 267          * Output         : None
+ 268          * Return         : None
+ 269          *******************************************************************************/
+ 270          void UFI_Hunding(void ){                
+ 271   1                      switch(MassPara.cbw.cbwcb.buf1[0]){
+ 272   2                              case INQUIRY:                
+ 273   2                                      pBuf = DBINQUITY;                                                                             //²éÑ¯UÅÌÐÅÏ¢
+ 274   2                                      if(UFI_Length.mDataLength>sizeof(DBINQUITY)) UFI_Length.mDataLength=sizeof(DBINQUITY);
+ 275   2                                      BcswStatus=0;
+ 276   2                                      mSenseKey=0;
+ 277   2                                      mASC=0;
+ 278   2                              break;
+ 279   2                              case FORMATCAP:                                                              //¿É¸ñÊ½»¯ÈÝÁ¿£¨Ä£Äâ8GÅÌ£©
+ 280   2                                      pBuf = DBFORMATCAP;
+ 281   2                                      if(UFI_Length.mDataLength>sizeof(DBFORMATCAP)) UFI_Length.mDataLength=sizeof(DBFORMATCAP);
+ 282   2                                      BcswStatus=0;
+ 283   2                                      mSenseKey=0;
+ 284   2                                      mASC=0;                 
+ 285   2                              break;
+ 286   2      //                      case WRITE:     
+ 287   2      //               UFI_write();
+ 288   2      //                      break;
+ 289   2                              case PRE_OR_MED:
+ 290   2                              case TEST_UNIT:
+ 291   2                                      CH375BULKDOWN=0;
+ 292   2                                      CH375BULKUP=0;
+ 293   2                                      BcswStatus=0;                   
+ 294   2                                      mSenseKey=0;
+ 295   2                                      mASC=0;
+ 296   2                              break;
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 6   
+
+ 297   2                              case READ:
+ 298   2                                      UFI_Length.mDataLength=(((UINT32)MassPara.cbw.cbwcb.buf1[7]<<8) | (UINT32)MassPara.cbw.cbwcb.buf1[8])*
+             -512;  //·¢ËÍ³¤¶È
+ 299   2                                      SecNum = ((UINT32)MassPara.cbw.cbwcb.buf1[2]<<24) | ((UINT32)MassPara.cbw.cbwcb.buf1[3]<<16) | ((UINT3
+             -2)MassPara.cbw.cbwcb.buf1[4]<<8) | (UINT32)MassPara.cbw.cbwcb.buf1[5];//ÆðÊ¼ÉÈÇøºÅ
+ 300   2                                      if(SecNum==0 || SecNum==6)
+ 301   2                                      {
+ 302   3                                              pBuf = DBR;
+ 303   3                                      }
+ 304   2                                      else if(SecNum==0x20 || SecNum==0x3b59)
+ 305   2                                      {
+ 306   3                                              pBuf = FAT;
+ 307   3                                      }
+ 308   2                                      BcswStatus=0;
+ 309   2                                      mSenseKey=0;
+ 310   2                                      mASC=0; 
+ 311   2                                      
+ 312   2                              break;
+ 313   2                              case REQUEST_SENSE:          
+ 314   2                                      MassPara.Sense.ErrorCode=0x70;
+ 315   2                                      MassPara.Sense.Reserved1=0;
+ 316   2                                      MassPara.Sense.SenseKey=mSenseKey;
+ 317   2                                      MassPara.Sense.Information[0]=0;
+ 318   2                                      MassPara.Sense.Information[1]=0;
+ 319   2                                      MassPara.Sense.Information[2]=0;
+ 320   2                                      MassPara.Sense.Information[3]=0;
+ 321   2                                      MassPara.Sense.AddSenseLength=0x0a;
+ 322   2                                      MassPara.Sense.Reserved2[0]=0;
+ 323   2                                      MassPara.Sense.Reserved2[1]=0;
+ 324   2                                      MassPara.Sense.Reserved2[2]=0;
+ 325   2                                      MassPara.Sense.Reserved2[3]=0;
+ 326   2                                      MassPara.Sense.AddSenseCode=mASC;
+ 327   2                                      MassPara.Sense.AddSenseCodeQua=0;
+ 328   2                                      MassPara.Sense.Reserved3[0]=0;
+ 329   2                                      MassPara.Sense.Reserved3[1]=0;
+ 330   2                                      MassPara.Sense.Reserved3[2]=0;
+ 331   2                                      MassPara.Sense.Reserved3[3]=0;
+ 332   2                                      pBuf=MassPara.buf;
+ 333   2                                      if ( UFI_Length.mDataLength > 18 ) UFI_Length.mDataLength = 18;
+ 334   2                                      BcswStatus=0;
+ 335   2                                      mSenseKey=0;
+ 336   2                                      mASC=0;                         
+ 337   2                              break;
+ 338   2                              case READ_CAPACITY:
+ 339   2                                      if ( UFI_Length.mDataLength > sizeof(DBCAPACITY) ) UFI_Length.mDataLength = sizeof(DBCAPACITY);
+ 340   2                                      pBuf=(unsigned char*)DBCAPACITY;        
+ 341   2                                      BcswStatus=0;
+ 342   2                                      mSenseKey=0;
+ 343   2                                      mASC=0;                                                                 
+ 344   2                              break;
+ 345   2                              case MODE_SENSE:
+ 346   2                                      if ( UFI_Length.mDataLength > sizeof(modesense3F) ) UFI_Length.mDataLength = sizeof(modesense3F);
+ 347   2                                      pBuf=(unsigned char*)modesense3F;       
+ 348   2                                      BcswStatus=0;
+ 349   2                                      mSenseKey=0;
+ 350   2                                      mASC=0;                         
+ 351   2                              break;
+ 352   2                              default:                        
+ 353   2                                      mSenseKey=5;
+ 354   2                                      mASC=0x24;
+ 355   2                                      BcswStatus=1;
+ 356   2                                      if(CH375BULKUP)
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 7   
+
+ 357   2                                      {
+ 358   3                                              UEP1_CTRL = UEP1_CTRL | UEP_T_RES_STALL;
+ 359   3                                      }
+ 360   2                                      else
+ 361   2                                      {
+ 362   3                                              UEP1_CTRL = UEP1_CTRL | UEP_R_RES_STALL;
+ 363   3                                      }
+ 364   2                                      break;
+ 365   2                              }
+ 366   1      }
+ 367          /*******************************************************************************
+ 368          * Function Name  : mCH375UpCsw
+ 369          * Description    : ÅúÁ¿Ð­Òé×´Ì¬ÉÏ´«
+ 370          * Input          : None
+ 371          * Output         : None
+ 372          * Return         : None
+ 373          *******************************************************************************/
+ 374          void mCH375UpCsw()
+ 375          {
+ 376   1              unsigned char i;                                                                                                        //Èç¹ûÊý¾ÝÎª0
+ 377   1              pBuf=&MassPara.buf[0];
+ 378   1              CH375CSW=0;                                                                                                                                     //ÉÏ´«CSW
+ 379   1              CH375BULKUP=0;                                                                                                          //È¡ÏûÊý¾ÝÉÏ´«
+ 380   1              MassPara.buf[0]=0x55;                                                                                           //dCSWSignature
+ 381   1              MassPara.buf[1]=0x53;
+ 382   1              MassPara.buf[2]=0x42;
+ 383   1              MassPara.buf[3]=0x53;
+ 384   1              MassPara.buf[4]=mdCBWTag[0];
+ 385   1              MassPara.buf[5]=mdCBWTag[1];
+ 386   1              MassPara.buf[6]=mdCBWTag[2];
+ 387   1              MassPara.buf[7]=mdCBWTag[3];
+ 388   1              MassPara.buf[8]=UFI_Length.mdataLen[3];
+ 389   1              MassPara.buf[9]=UFI_Length.mdataLen[2];
+ 390   1              MassPara.buf[10]=UFI_Length.mdataLen[1];
+ 391   1              MassPara.buf[11]=UFI_Length.mdataLen[0];
+ 392   1              MassPara.buf[12]=BcswStatus;
+ 393   1              for(i = 0;i<13;i++)
+ 394   1              {
+ 395   2                      Ep1Buffer[MAX_PACKET_SIZE+i] = *pBuf;
+ 396   2                      pBuf++;
+ 397   2              }
+ 398   1              UEP1_T_LEN = 13;
+ 399   1              UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;          // ÔÊÐíÉÏ´«
+ 400   1      }
+ 401          
+ 402          /*******************************************************************************
+ 403          * Function Name  : mCH375BulkOnly
+ 404          * Description    : ÅúÁ¿Ð­Òé´¦Àí
+ 405          * Input          : None
+ 406          * Output         : None
+ 407          * Return         : None
+ 408          *******************************************************************************/
+ 409          void mCH375BulkOnly(){
+ 410   1              if(MassPara.buf[0]==0x55){
+ 411   2                      if(MassPara.buf[1]==0x53){
+ 412   3                         if(MassPara.buf[2]==0x42){
+ 413   4                                      if(MassPara.buf[3]==0x43){
+ 414   5                                              UFI_Length.mdataLen[3] = *(unsigned char *)(&MassPara.cbw.dCBWDatL);             /* ½«PC»úµÄµÍ×Ö½ÚÔÚÇ
+             -°µÄ16Î»×ÖÊý¾Ý×ª»»ÎªC51µÄ¸ß×Ö½ÚÔÚÇ°µÄÊý¾Ý */
+ 415   5                                              UFI_Length.mdataLen[2] = *( (unsigned char *)(&MassPara.cbw.dCBWDatL) + 1 );
+ 416   5                                              UFI_Length.mdataLen[1] = *( (unsigned char *)(&MassPara.cbw.dCBWDatL) + 2 );
+ 417   5                                              UFI_Length.mdataLen[0] = *( (unsigned char *)(&MassPara.cbw.dCBWDatL) + 3 );
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 8   
+
+ 418   5                                              mdCBWTag[0]=MassPara.buf[4];
+ 419   5                                              mdCBWTag[1]=MassPara.buf[5];
+ 420   5                                              mdCBWTag[2]=MassPara.buf[6];
+ 421   5                                              mdCBWTag[3]=MassPara.buf[7];                                                                                 //È¡³öÊý¾Ý³¤¶È
+ 422   5                                              if(UFI_Length.mDataLength){
+ 423   6                                                              CH375BULKDOWN=(MassPara.cbw.bmCBWFlags&0X80)?0:1;                    //ÅÐ¶ÏÊÇÉÏ´«»¹ÊÇÏÂ´«Êý¾Ý
+ 424   6                                                              CH375BULKUP=(MassPara.cbw.bmCBWFlags&0X80)?1:0;
+ 425   6                                                      }
+ 426   5                                                      CH375CSW=1;
+ 427   5                                                      UFI_Hunding();                                                       //µ÷ÓÃUFIÐ­Òé´¦Àí
+ 428   5                                 }
+ 429   4                                      else
+ 430   4                                      UEP1_CTRL = UEP1_CTRL | UEP_T_RES_STALL ;
+ 431   4                        }
+ 432   3                         else
+ 433   3                              UEP1_CTRL = UEP1_CTRL | UEP_T_RES_STALL ;
+ 434   3                       }
+ 435   2                      else
+ 436   2                      UEP1_CTRL = UEP1_CTRL | UEP_T_RES_STALL ;
+ 437   2               }
+ 438   1              else
+ 439   1              UEP1_CTRL = UEP1_CTRL | UEP_T_RES_STALL ;
+ 440   1      }
+ 441          /*******************************************************************************
+ 442          * Function Name  : CH375bulkUpData
+ 443          * Description    : ÅúÁ¿Ð­ÒéÉÏ´«
+ 444          * Input          : None
+ 445          * Output         : None
+ 446          * Return         : None
+ 447          *******************************************************************************/
+ 448          void CH375bulkUpData(){                                                                                            //µ÷ÓÃ¶Ëµã1ÉÏ´«Êý¾Ý
+ 449   1                      unsigned char len,i;
+ 450   1                      if(UFI_Length.mDataLength>MAX_PACKET_SIZE){
+ 451   2                              len=MAX_PACKET_SIZE;
+ 452   2                              UFI_Length.mDataLength-=MAX_PACKET_SIZE;
+ 453   2                      }
+ 454   1                      else {
+ 455   2                              len= (unsigned char) UFI_Length.mDataLength;
+ 456   2                              UFI_Length.mDataLength=0;
+ 457   2                              CH375BULKUP=0;
+ 458   2                      }               
+ 459   1                      {
+ 460   2                              for(i = 0;i<len;i++)
+ 461   2                              {
+ 462   3                                      Ep1Buffer[MAX_PACKET_SIZE+i] = *pBuf;
+ 463   3                                      pBuf++;
+ 464   3                              }
+ 465   2                      }
+ 466   1                      UEP1_T_LEN = len;
+ 467   1                      UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_ACK;        // ÔÊÐíÉÏ´«
+ 468   1      }
+ 469          /*******************************************************************************
+ 470          * Function Name  : USB_DeviceInterrupt
+ 471          * Description    : USBÄ£ÄâÉèÖÃÖÐ¶Ï´¦Àíº¯Êý
+ 472          * Input          : None
+ 473          * Output         : None
+ 474          * Return         : None
+ 475          *******************************************************************************/
+ 476          void USB_DeviceInterrupt( void ) interrupt INT_NO_USB  using 1             /* USBÖÐ¶Ï·þÎñ³ÌÐò,Ê¹ÓÃ¼Ä´æÆ÷×é
+             -1 */
+ 477          {
+ 478   1          UINT8   len,length;
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 9   
+
+ 479   1          static  UINT8   SetupReqCode;
+ 480   1              static  UINT16 SetupLen;
+ 481   1          static  PUINT8  pDescr;
+ 482   1              
+ 483   1          if ( UIF_TRANSFER )                                                        // USB´«ÊäÍê³É
+ 484   1          {
+ 485   2                      switch ( USB_INT_ST & ( MASK_UIS_TOKEN | MASK_UIS_ENDP ) )         // ·ÖÎö²Ù×÷ÁîÅÆºÍ¶ËµãºÅ
+ 486   2                      {
+ 487   3                      case UIS_TOKEN_IN | 1:                                             // endpoint 1# ÖÐ¶Ï¶ËµãÉÏ´«
+ 488   3                              if(CH375BULKUP) CH375bulkUpData();                                                              //µ÷ÓÃÊý¾ÝÉÏ´«
+ 489   3                              else if(CH375CSW) {
+ 490   4                                      CH375CSW = 0;
+ 491   4                                      mCH375UpCsw();                                                                  //ÉÏ´«CSW
+ 492   4                              }
+ 493   3                              else
+ 494   3                              UEP1_CTRL = UEP1_CTRL & ~ MASK_UEP_T_RES | UEP_T_RES_NAK;      // ÔÝÍ£ÉÏ´«
+ 495   3                              break;
+ 496   3                      case UIS_TOKEN_OUT | 1:
+ 497   3                              if ( U_TOG_OK )                                                // ²»Í¬²½µÄÊý¾Ý°ü½«¶ªÆú
+ 498   3                              {
+ 499   4                                      if(CH375BULKDOWN) 
+ 500   4                                      {                                                       
+ 501   5                                              //ÔÝÊ±²»¿ÉÐ´
+ 502   5      //                                      mCH375BulkDownData();                                              //Èç¹ûÉÏ´«Êý¾Ý½×¶ÎÔòµ÷ÓÃÊý¾ÝÉÏ´«
+ 503   5                                      }
+ 504   4                                      else{                                                                                              //²»ÊÇÊý¾ÝÏÂ´«ÔòÅÐ¶ÏÊÇ·ñ
+ 505   5                                                      length = USB_RX_LEN;
+ 506   5                                                      if(!length)break;                                                                  //Êý¾Ý°ü³¤¶ÈÎªÁãÔòÌø³ö                                                                                                                                               
+ 507   5                                                      for(len=0;len!=length;len++)                                            
+ 508   5                                                              MassPara.buf[len]=Ep1Buffer[len];                  //½«Êý¾Ý¶ÁÈëµ½»º³åÇø
+ 509   5                                                      mCH375BulkOnly();
+ 510   5                                                      if(!CH375BULKDOWN){
+ 511   6                                                              if(CH375BULKUP) CH375bulkUpData();                          //µ÷ÓÃÅúÁ¿Êý¾ÝÉÏ´«
+ 512   6                                                              else mCH375UpCsw();                             //test
+ 513   6                                                      }
+ 514   5                                      }       
+ 515   4                              }                               
+ 516   3                      
+ 517   3                              break;
+ 518   3                      case UIS_TOKEN_SETUP | 0:                                          // endpoint 0# SETUP
+ 519   3                              len = USB_RX_LEN;
+ 520   3                              if ( len == sizeof( USB_SETUP_REQ ) )                          // SETUP°ü³¤¶È
+ 521   3                              {
+ 522   4                                      SetupLen = ((UINT16)UsbSetupBuf->wLengthH<<8) | (UsbSetupBuf->wLengthL);
+ 523   4                                      len = 0;                                                   // Ä¬ÈÏÎª³É¹¦²¢ÇÒÉÏ´«0³¤¶È
+ 524   4                                      SetupReqCode = UsbSetupBuf->bRequest;
+ 525   4                                      if ( ( UsbSetupBuf->bRequestType & USB_REQ_TYP_MASK ) != USB_REQ_TYP_STANDARD )/* ÀàÇëÇó */
+ 526   4                                      {                                                                  
+ 527   5                                              if(SetupReqCode == 0xFE)                               //GET MAX LUN
+ 528   5                                              {
+ 529   6                                                      pDescr = (PUINT8)( &MAX_LUN[0] );                                                       
+ 530   6                                                      len = 1;
+ 531   6                                                      if ( SetupLen > len )
+ 532   6                                                      {
+ 533   7                                                              SetupLen = len;                                 // ÏÞÖÆ×Ü³¤¶È
+ 534   7                                                      }
+ 535   6                                                      len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;  // ±¾´Î´«Êä³¤¶È
+ 536   6                                                      memcpy( Ep0Buffer, pDescr, len );                   /* ¼ÓÔØÉÏ´«Êý¾Ý */
+ 537   6                                                      SetupLen -= len;
+ 538   6                                                      pDescr += len;                                          
+ 539   6                                              }
+ 540   5                                              else
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 10  
+
+ 541   5                                                      len = 0xFF;                                     
+ 542   5                                      }
+ 543   4                                      else                                                       // ±ê×¼ÇëÇó
+ 544   4                                      {                                       
+ 545   5                                              switch( SetupReqCode )                                 // ÇëÇóÂë
+ 546   5                                              {
+ 547   6                                              case USB_GET_DESCRIPTOR:
+ 548   6                                                      switch( UsbSetupBuf->wValueH )
+ 549   6                                                      {
+ 550   7                                                      case 1:                                            // Éè±¸ÃèÊö·û
+ 551   7                                                              pDescr = (PUINT8)( &MyDevDescr[0] );
+ 552   7                                                              len = sizeof( MyDevDescr );
+ 553   7                                                              break;
+ 554   7                                                      case 2:                                            // ÅäÖÃÃèÊö·û
+ 555   7                                                              pDescr = (PUINT8)( &MyCfgDescr[0] );
+ 556   7                                                              len = sizeof( MyCfgDescr );
+ 557   7                                                              break;
+ 558   7                                                      case 3:                                            // ×Ö·û´®ÃèÊö·û
+ 559   7                                                              switch( UsbSetupBuf->wValueL )
+ 560   7                                                              {
+ 561   8                                                              case 1:
+ 562   8                                                                      pDescr = (PUINT8)( &MyManuInfo[0] );       
+ 563   8                                                                      len = sizeof( MyManuInfo );
+ 564   8                                                                      break;
+ 565   8                                                              case 2:
+ 566   8                                                                      pDescr = (PUINT8)( &MyProdInfo[0] );        
+ 567   8                                                                      len = sizeof( MyProdInfo );
+ 568   8                                                                      break;
+ 569   8                                                              case 0:
+ 570   8                                                                      pDescr = (PUINT8)( &MyLangDescr[0] );
+ 571   8                                                                      len = sizeof( MyLangDescr );
+ 572   8                                                                      break;
+ 573   8                                                              default:
+ 574   8                                                                      len = 0xFF;                                 // ²»Ö§³ÖµÄ×Ö·û´®ÃèÊö·û
+ 575   8                                                                      break;
+ 576   8                                                              }
+ 577   7                                                              break;
+ 578   7                                                      default:
+ 579   7                                                              len = 0xFF;                                     // ²»Ö§³ÖµÄÃèÊö·ûÀàÐÍ
+ 580   7                                                              break;
+ 581   7                                                      }
+ 582   6                                                      if ( SetupLen > len )
+ 583   6                                                      {
+ 584   7                                                              SetupLen = len;                                 // ÏÞÖÆ×Ü³¤¶È
+ 585   7                                                      }
+ 586   6                                                      len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen;  // ±¾´Î´«Êä³¤¶È
+ 587   6                                                      memcpy( Ep0Buffer, pDescr, len );                   /* ¼ÓÔØÉÏ´«Êý¾Ý */
+ 588   6                                                      SetupLen -= len;
+ 589   6                                                      pDescr += len;
+ 590   6                                                      break;
+ 591   6                                              case USB_SET_ADDRESS:
+ 592   6                                                      SetupLen = UsbSetupBuf->wValueL;                    // ÔÝ´æUSBÉè±¸µØÖ·
+ 593   6                                                      break;
+ 594   6                                              case USB_GET_CONFIGURATION:
+ 595   6                                                      Ep0Buffer[0] = UsbConfig;
+ 596   6                                                      if ( SetupLen >= 1 )
+ 597   6                                                      {
+ 598   7                                                              len = 1;
+ 599   7                                                      }
+ 600   6                                                      break;
+ 601   6                                              case USB_SET_CONFIGURATION:
+ 602   6                                                      UsbConfig = UsbSetupBuf->wValueL;
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 11  
+
+ 603   6                                              #if DE_PRINTF
+ 604   6                                                      printf("Config\n");
+ 605   6                                              #endif                                                                                          
+ 606   6                                                      break;
+ 607   6                                              case USB_CLEAR_FEATURE:
+ 608   6                              if( ( UsbSetupBuf->bRequestType & USB_REQ_RECIP_MASK ) == USB_REQ_RECIP_DEVICE )  
+             -                /* Çå³ýÉè±¸ */
+ 609   6                              {
+ 610   7                                  if( ( ( ( UINT16 )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01
+             - )
+ 611   7                                  {
+ 612   8                                      if( MyCfgDescr[ 7 ] & 0x20 )
+ 613   8                                      {
+ 614   9                                          /* »½ÐÑ */
+ 615   9                                      }
+ 616   8                                      else
+ 617   8                                      {
+ 618   9                                          len = 0xFF;                                        /* ²Ù×÷Ê§°Ü */
+ 619   9                                      }
+ 620   8                                  }
+ 621   7                                  else
+ 622   7                                  {
+ 623   8                                      len = 0xFF;                                            /* ²Ù×÷Ê§°Ü */
+ 624   8                                  }
+ 625   7                              }                                               
+ 626   6                                                      else if ( ( UsbSetupBuf->bRequestType & USB_REQ_RECIP_MASK ) == USB_REQ_RECIP_ENDP )// ¶Ëµã
+ 627   6                                                      {
+ 628   7                                                              switch( UsbSetupBuf->wIndexL )
+ 629   7                                                              {
+ 630   8                                                              case 0x82:
+ 631   8                                                                      UEP2_CTRL = UEP2_CTRL & ~ ( bUEP_T_TOG | MASK_UEP_T_RES ) | UEP_T_RES_NAK;
+ 632   8                                                                      break;
+ 633   8                                                              case 0x02:
+ 634   8                                                                      UEP2_CTRL = UEP2_CTRL & ~ ( bUEP_R_TOG | MASK_UEP_R_RES ) | UEP_R_RES_ACK;
+ 635   8                                                                      break;
+ 636   8                                                              case 0x81:
+ 637   8                                                                      UEP1_CTRL = UEP1_CTRL & ~ ( bUEP_T_TOG | MASK_UEP_T_RES ) | UEP_T_RES_NAK;
+ 638   8                                                                      if(CH375CSW) 
+ 639   8                                                                      {
+ 640   9                                                                              CH375CSW=0;
+ 641   9                                                                              mCH375UpCsw();
+ 642   9                                                                      }
+ 643   8                                                                      break;
+ 644   8                                                              case 0x01:
+ 645   8                                                                      UEP1_CTRL = UEP1_CTRL & ~ ( bUEP_R_TOG | MASK_UEP_R_RES ) | UEP_R_RES_ACK;                                              
+ 646   8                                                                      if(CH375CSW) 
+ 647   8                                                                      {
+ 648   9                                                                              CH375CSW = 0;
+ 649   9                                                                              mCH375UpCsw();
+ 650   9                                                                      }
+ 651   8                                                                      break;
+ 652   8                                                              default:
+ 653   8                                                                      len = 0xFF;                                     // ²»Ö§³ÖµÄ¶Ëµã
+ 654   8                                                                      break;
+ 655   8                                                              }
+ 656   7                                                      }
+ 657   6                                                      else
+ 658   6                                                      {
+ 659   7                                                              len = 0xFF;                                         // ²»ÊÇ¶Ëµã²»Ö§³Ö
+ 660   7                                                      }
+ 661   6                                                      break;
+ 662   6                          case USB_SET_FEATURE:                                          /* Set Feature */
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 12  
+
+ 663   6                              if( ( UsbSetupBuf->bRequestType & 0x1F ) == USB_REQ_RECIP_DEVICE )                
+             -  /* ÉèÖÃÉè±¸ */
+ 664   6                              {
+ 665   7                                  if( ( ( ( UINT16 )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x01
+             - )
+ 666   7                                  {
+ 667   8                                      if( MyCfgDescr[ 7 ] & 0x20 )
+ 668   8                                      {
+ 669   9                                          /* ÐÝÃß */
+ 670   9                                                      #if DE_PRINTF
+ 671   9                                                                              printf( "suspend\n" );                                                             //Ë¯Ãß×´Ì¬
+ 672   9                                                      #endif
+ 673   9                                                                              while ( XBUS_AUX & bUART0_TX )
+ 674   9                                                                              {
+ 675  10                                                                                      ;    //µÈ´ý·¢ËÍÍê³É
+ 676  10                                                                              }
+ 677   9                                                                              SAFE_MOD = 0x55;
+ 678   9                                                                              SAFE_MOD = 0xAA;
+ 679   9                                                                              WAKE_CTRL = bWAK_BY_USB | bWAK_RXD0_LO;                      //USB»òÕßRXD0ÓÐÐÅºÅÊ±¿É±»»½ÐÑ
+ 680   9                                                                              PCON |= PD;                                                                 //Ë¯Ãß
+ 681   9                                                                              SAFE_MOD = 0x55;
+ 682   9                                                                              SAFE_MOD = 0xAA;
+ 683   9                                                                              WAKE_CTRL = 0x00;
+ 684   9                                      }
+ 685   8                                      else
+ 686   8                                      {
+ 687   9                                          len = 0xFF;                                        /* ²Ù×÷Ê§°Ü */
+ 688   9                                      }
+ 689   8                                  }
+ 690   7                                  else
+ 691   7                                  {
+ 692   8                                      len = 0xFF;                                            /* ²Ù×÷Ê§°Ü */
+ 693   8                                  }
+ 694   7                              }
+ 695   6                              else if( ( UsbSetupBuf->bRequestType & 0x1F ) == USB_REQ_RECIP_ENDP )             
+             -/* ÉèÖÃ¶Ëµã */
+ 696   6                              {
+ 697   7                                  if( ( ( ( UINT16 )UsbSetupBuf->wValueH << 8 ) | UsbSetupBuf->wValueL ) == 0x00
+             - )
+ 698   7                                  {
+ 699   8                                      switch( ( ( UINT16 )UsbSetupBuf->wIndexH << 8 ) | UsbSetupBuf->wIndexL )
+ 700   8                                      {                                                               
+ 701   9                                      case 0x82:
+ 702   9                                          UEP2_CTRL = UEP2_CTRL & (~bUEP_T_TOG) | UEP_T_RES_STALL;/* ÉèÖÃ¶Ëµã2 I
+             -N STALL */
+ 703   9                                          break;
+ 704   9                                      case 0x02:
+ 705   9                                          UEP2_CTRL = UEP2_CTRL & (~bUEP_R_TOG) | UEP_R_RES_STALL;/* ÉèÖÃ¶Ëµã2 O
+             -UT Stall */
+ 706   9                                          break;
+ 707   9                                      case 0x81:
+ 708   9                                          UEP1_CTRL = UEP1_CTRL & (~bUEP_T_TOG) | UEP_T_RES_STALL;/* ÉèÖÃ¶Ëµã1 I
+             -N STALL */
+ 709   9                                          break;
+ 710   9                                                                      case 0x01:
+ 711   9                                                                              UEP1_CTRL = UEP1_CTRL & (~bUEP_R_TOG) | UEP_R_RES_STALL;/* ÉèÖÃ¶Ëµã1 OUT Stall */
+ 712   9                                      default:
+ 713   9                                          len = 0xFF;                                    /* ²Ù×÷Ê§°Ü */
+ 714   9                                          break;
+ 715   9                                      }
+ 716   8                                  }
+ 717   7                                  else
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 13  
+
+ 718   7                                  {
+ 719   8                                      len = 0xFF;                                      /* ²Ù×÷Ê§°Ü */
+ 720   8                                  }
+ 721   7                              }
+ 722   6                              else
+ 723   6                              {
+ 724   7                                  len = 0xFF;                                          /* ²Ù×÷Ê§°Ü */
+ 725   7                              }
+ 726   6                              break;                                                                                  
+ 727   6                                              case USB_GET_INTERFACE:
+ 728   6                                                      Ep0Buffer[0] = 0x00;
+ 729   6                                                      if ( SetupLen >= 1 )
+ 730   6                                                      {
+ 731   7                                                              len = 1;
+ 732   7                                                      }
+ 733   6                                                      break;
+ 734   6                                              case USB_GET_STATUS:
+ 735   6                                                      if( ( UsbSetupBuf->bRequestType & 0x1F ) == USB_REQ_RECIP_DEVICE ) 
+ 736   6                                                      {
+ 737   7                                                              Ep0Buffer[0] = 0x02;
+ 738   7                                                              Ep0Buffer[1] = 0x00;                                                    
+ 739   7                                                      }
+ 740   6                                                      else
+ 741   6                                                      {
+ 742   7                                                              Ep0Buffer[0] = 0x00;
+ 743   7                                                              Ep0Buffer[1] = 0x00;                                                    
+ 744   7                                                      }
+ 745   6                                                      if ( SetupLen >= 2 )
+ 746   6                                                      {
+ 747   7                                                              len = 2;
+ 748   7                                                      }
+ 749   6                                                      else
+ 750   6                                                      {
+ 751   7                                                              len = SetupLen;
+ 752   7                                                      }
+ 753   6                                                      break;
+ 754   6                                              default:
+ 755   6                                                      len = 0xFF;                                             // ²Ù×÷Ê§°Ü
+ 756   6                                                      #if DE_PRINTF
+ 757   6                                                              printf("ErrEp0ReqCode=%02X\n",(UINT16)SetupReqCode);                                               
+             -              //Ë¯Ãß×´Ì¬
+ 758   6                                                      #endif
+ 759   6                                                      
+ 760   6                                                      break;
+ 761   6                                              }
+ 762   5                                      }
+ 763   4                              }
+ 764   3                              else
+ 765   3                              {
+ 766   4                                      len = 0xFF;                                                                     
+ 767   4                                      #if DE_PRINTF
+ 768   4                                              printf("ErrEp0ReqSize\n");                               // SETUP°ü³¤¶È´íÎó                          
+             -                       
+ 769   4                                      #endif
+ 770   4                              }
+ 771   3                              if ( len == 0xFF )                                                 // ²Ù×÷Ê§°Ü
+ 772   3                              {
+ 773   4                                      SetupReqCode = 0xFF;
+ 774   4                                      UEP0_CTRL = bUEP_R_TOG | bUEP_T_TOG | UEP_R_RES_STALL | UEP_T_RES_STALL;// STALL
+ 775   4                              }
+ 776   3                              else if ( len <= DEFAULT_ENDP0_SIZE )                                 // ÉÏ´«Êý¾Ý»òÕß×´Ì¬½×¶Î·µ»Ø0³¤¶È°
+             -ü
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 14  
+
+ 777   3                              {
+ 778   4                                      UEP0_T_LEN = len;
+ 779   4                                      UEP0_CTRL = bUEP_R_TOG | bUEP_T_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;// Ä¬ÈÏÊý¾Ý°üÊÇDATA1
+ 780   4                              }
+ 781   3                              else                                                               // ÏÂ´«Êý¾Ý»òÆäËü
+ 782   3                              {
+ 783   4                                      UEP0_T_LEN = 0;                                                // ËäÈ»ÉÐÎ´µ½×´Ì¬½×¶Î£¬µ«ÊÇÌáÇ°Ô¤ÖÃÉÏ´«
+             -0³¤¶ÈÊý¾Ý°üÒÔ·ÀÖ÷»úÌáÇ°½øÈë×´Ì¬½×¶Î
+ 784   4                                      UEP0_CTRL = bUEP_R_TOG | bUEP_T_TOG | UEP_R_RES_ACK | UEP_T_RES_ACK;// Ä¬ÈÏÊý¾Ý°üÊÇDATA1
+ 785   4                              }
+ 786   3                              break;
+ 787   3                      case UIS_TOKEN_IN | 0:                                                 // endpoint 0# IN
+ 788   3                              switch( SetupReqCode )
+ 789   3                              {
+ 790   4                              case USB_GET_DESCRIPTOR:
+ 791   4                                      len = SetupLen >= DEFAULT_ENDP0_SIZE ? DEFAULT_ENDP0_SIZE : SetupLen; // ±¾´Î´«Êä³¤¶È
+ 792   4                                      memcpy( Ep0Buffer, pDescr, len );                               /* ¼ÓÔØÉÏ´«Êý¾Ý */
+ 793   4                                      SetupLen -= len;
+ 794   4                                      pDescr += len;
+ 795   4                                      UEP0_T_LEN = len;
+ 796   4                                      UEP0_CTRL ^= bUEP_T_TOG;                                        // ·­×ª
+ 797   4                                      break;
+ 798   4                              case USB_SET_ADDRESS:
+ 799   4                                      USB_DEV_AD = USB_DEV_AD & bUDA_GP_BIT | SetupLen;
+ 800   4                                      UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
+ 801   4                                      break;
+ 802   4                              default:
+ 803   4                                      UEP0_T_LEN = 0;                                                 // ×´Ì¬½×¶ÎÍê³ÉÖÐ¶Ï»òÕßÊÇÇ¿ÖÆÉÏ´«0³¤¶È
+             -Êý¾Ý°ü½áÊø¿ØÖÆ´«Êä
+ 804   4                                      UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
+ 805   4                                      break;
+ 806   4                              }
+ 807   3                              break;
+ 808   3                      case UIS_TOKEN_OUT | 0:                                                 // endpoint 0# OUT
+ 809   3                              UEP0_T_LEN = 0;
+ 810   3                              UEP0_CTRL ^= bUEP_R_TOG;
+ 811   3      //                      UEP0_CTRL |= UEP_R_RES_ACK | UEP_T_RES_NAK;                      // ×¼±¸ÏÂÒ»¿ØÖÆ´«Êä
+ 812   3                              break;
+ 813   3                      default:
+ 814   3                              #if DE_PRINTF
+ 815   3                                      printf("ErrEndp INT\n");
+ 816   3                              #endif                  
+ 817   3                              break;
+ 818   3                      }
+ 819   2              UIF_TRANSFER = 0;                                                           // ÇåÖÐ¶Ï±êÖ¾
+ 820   2          }
+ 821   1          else if ( UIF_BUS_RST )                                                         // USB×ÜÏß¸´Î»
+ 822   1          {
+ 823   2      #if DE_PRINTF
+ 824   2                  printf( "reset\n" );                                                             //Ë¯Ãß×´Ì¬
+ 825   2      #endif  
+ 826   2              UEP0_CTRL = UEP_R_RES_ACK | UEP_T_RES_NAK;
+ 827   2              UEP1_CTRL = bUEP_AUTO_TOG | UEP_R_RES_ACK | UEP_T_RES_NAK;
+ 828   2              USB_DEV_AD = 0x00;
+ 829   2              UIF_SUSPEND = 0;
+ 830   2              UIF_TRANSFER = 0;
+ 831   2              UIF_BUS_RST = 0;                                                            // ÇåÖÐ¶Ï±êÖ¾
+ 832   2          }
+ 833   1          else if ( UIF_SUSPEND )                                                         // USB×ÜÏß¹ÒÆð/»½ÐÑÍê³
+             -É
+ 834   1          {
+ 835   2              UIF_SUSPEND = 0;
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 15  
+
+ 836   2              if ( USB_MIS_ST & bUMS_SUSPEND )                                            // ¹ÒÆð
+ 837   2              {
+ 838   3      #if DE_PRINTF
+ 839   3                   printf( "Suspend\n" );                                                  // Ë¯Ãß×´Ì¬
+ 840   3      #endif                                                   
+ 841   3                  while ( XBUS_AUX & bUART0_TX );                                         // µÈ´ý·¢ËÍÍê³É
+ 842   3                  SAFE_MOD = 0x55;
+ 843   3                  SAFE_MOD = 0xAA;
+ 844   3                  WAKE_CTRL = bWAK_BY_USB | bWAK_RXD0_LO;                                 // USB»òÕßRXD0ÓÐÐÅºÅÊ±
+             -¿É±»»½ÐÑ
+ 845   3                  PCON |= PD;                                                             // Ë¯Ãß
+ 846   3                  SAFE_MOD = 0x55;
+ 847   3                  SAFE_MOD = 0xAA;
+ 848   3                  WAKE_CTRL = 0x00;
+ 849   3              }
+ 850   2              else                                                                        
+ 851   2              {
+ 852   3      #if DE_PRINTF
+ 853   3                  printf( "Awake\n" );                                                   // »½ÐÑ
+ 854   3      #endif    
+ 855   3              }
+ 856   2          }
+ 857   1          else 
+ 858   1          {                                                                               // ÒâÍâµÄÖÐ¶Ï,²»¿ÉÄÜ·¢
+             -ÉúµÄÇé¿ö
+ 859   2      #if DE_PRINTF
+ 860   2              printf("Unknown USB_INT_FG:0X%02x\n",(UINT16)USB_INT_FG);                                         
+             -       
+ 861   2      #endif   
+ 862   2              
+ 863   2              USB_INT_FG = 0xFF;                                                          // ÇåÖÐ¶Ï±êÖ¾
+ 864   2          }
+ 865   1              
+ 866   1      }
+ 867          
+ 868          void main()
+ 869          {
+ 870   1          CfgFsys( );                                                           //CH559Ê±ÖÓÑ¡ÔñÅäÖÃ
+ 871   1          mDelaymS(5);                                                          //ÐÞ¸ÄÖ÷ÆµµÈ´ýÄÚ²¿¾§ÕñÎÈ¶¨,±Ø¼Ó       
+ 872   1          mInitSTDIO( );                                                        //´®¿Ú0,¿ÉÒÔÓÃÓÚµ÷ÊÔ  
+ 873   1      #if DE_PRINTF
+ 874   1          printf("start ...\n");
+ 875   1      #endif
+ 876   1              InitUSB_Device();                                                     //Éè±¸Ä£Ê½³õÊ¼»¯  
+ 877   1              while(1)
+ 878   1              {
+ 879   2                      
+ 880   2              }
+ 881   1      
+ 882   1      
+ 883   1      
+ 884   1      
+ 885   1      
+ 886   1      
+ 887   1      
+ 888   1      
+ 889   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2656    ----
+   CONSTANT SIZE    =   1299    ----
+C51 COMPILER V9.53.0.0   U_DISK                                                            03/09/2017 17:42:38 PAGE 16  
+
+   XDATA SIZE       =     89       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,456 @@
+
+table.cTblTypeName {
+	border-width: 3px;
+	border-style:groove;
+	border-color:#666666;
+	border-collapse: collapse;
+	background-color:#EEFFEE;
+	width:100%;
+}
+table.cTblTypeName th {
+	background-color:#333333;
+	color:#FFFFFF;
+	padding:1px;
+}
+table.cTblTypeName td {
+	padding:2px;
+}
+
+table.cTblGroup {
+	border-width: 2px;
+	border-style: ridge;
+	border-color: blue;
+	border-collapse: collapse;
+	background-color: white;
+	width:100%;
+}
+table.cTblGroup th {
+	text-align:left;
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:13px;
+	font-weight:bold;
+	border-width: 2px;
+	padding: 1px;
+	border-style: ridge;
+	border-color: blue;
+	background-color:#0099FF;
+	color:#FFFFFF;
+	-moz-border-radius: ;
+}
+table.cTblGroup td {
+	border-width: 2px;
+	padding: 1px;
+	border-style: ridge;
+	border-color: blue;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table.cTblProperties {
+	border-width: 1px;
+	border-style: inset;
+	border-color: blue;
+	border-collapse: collapse;
+	background-color: white;
+	width:100%;
+}
+table.cTblProperties th {
+	text-align:left;
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:13px;
+	font-weight:normal;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color:#AABBFF;
+	color:#000000;
+
+	-moz-border-radius: ;
+}
+table.cTblProperties td {
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:12px;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table.cTblFields {
+	border-width: 1px;
+	border-style: inset;
+	border-color: blue;
+	border-collapse: collapse;
+	background-color: white;
+	width:100%;
+}
+table.cTblFields th {
+	text-align:left;
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:13px;
+	font-weight:normal;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color:#AABBFF;
+	color:#000000;
+
+	-moz-border-radius: ;
+}
+table.cTblFields td {
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:12px;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table.cTblParams {
+	border-width: 1px;
+	border-style: inset;
+	border-color: blue;
+	border-collapse: collapse;
+	background-color: white;
+	margin-left:20px;
+	width:90%;
+}
+table.cTblParams th {
+	text-align:left;
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:13px;
+	font-weight:normal;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color:#FFCC99;
+	color:#000000;
+
+	-moz-border-radius: ;
+}
+table.cTblParams td {
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:12px;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color: white;
+	-moz-border-radius: ;
+}
+table.cTblEnums {
+	border-width: 1px;
+	border-style: inset;
+	border-color: blue;
+	border-collapse: collapse;
+	background-color: white;
+	margin-left:20px;
+	width:90%;
+}
+table.cTblEnums th {
+	text-align:left;
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:13px;
+	font-weight:normal;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color:#FFCC99;
+	color:#000000;
+
+	-moz-border-radius: ;
+}
+table.cTblEnums td {
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:12px;
+	border-width: 1px;
+	padding: 1px;
+	border-style: inset;
+	border-color: blue;
+	background-color: white;
+	-moz-border-radius: ;
+}
+
+.cNameSpaceHead
+{
+font-family:Tahoma, Arial, sans-serif;
+color:#6600CC;
+font-size:11px;
+font-weight:bold;
+}
+.cNameSpace
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+color:#CC6600;
+}
+
+.cGroups
+{
+background-color:#6699CC;
+color:#FFFFFF;
+font-family:Tahoma, Arial, sans-serif;
+font-size:14px;
+font-weight:bold;
+}
+
+.cNoDocumentation
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:13px;
+font-weight:bold;
+color:#FF0000;
+}
+
+.cMethodHeader
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+font-weight:bold;
+color:#0000CC;
+background-color:#EEEEEE;
+}
+
+.cSummaryHead
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+
+.cSummary
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+}
+
+.cRemarksHead
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+
+.cRemarks
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+}
+
+.cParamsHead
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+
+.cParams
+{
+	font-family: Tahoma, Arial, sans-serif;
+	font-size: 11px;
+	color:#0000CC;
+	font-weight: bold;
+}
+.cReturnsHead
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+.cObjectType
+{
+	color:#00FF00;
+}
+
+
+.cSeeAlso{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+font-weight:bold;
+
+}
+
+a.cLinkCref
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+font-weight:bold;
+text-decoration:none;
+color:#5555DD;
+}
+a.cLinkCref:hover
+{
+text-decoration:underline;
+}
+.cParamsText
+{
+}
+
+
+
+.cCode
+{
+	font-family: 'Courier New';
+	font-size: 11px;
+	background-color: #ddddff;
+	white-space:nowrap;
+}
+
+.cParamRef
+{
+	
+}
+
+.cParamRefName
+{
+}
+
+.cPara
+{
+}
+
+.cValue{
+}
+
+.cPermission{
+}
+
+
+.cException{
+}
+
+.cEventHeader{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+font-weight:bold;
+color:#0000CC;
+background-color:#EEEEEE;
+}
+
+.cConstructorHeader{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+font-weight:bold;
+color:#0000CC;
+background-color:#EEEEEE;
+}
+
+.cDelegateHeader{
+font-family:Tahoma, Arial, sans-serif;
+font-size:11px;
+font-weight:bold;
+color:#0000CC;
+background-color:#EEEEEE;
+}
+
+.cSeeAlsoHead{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+.cPermissionHead{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+
+.cExampleHead
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+.cExceptionHead{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+font-weight:bolder;
+color:#000066;
+}
+
+.cExample
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+}
+
+.cReturns
+{
+font-family:Tahoma, Arial, sans-serif;
+font-size:12px;
+}
+.cRequirement
+{
+	color:Red;
+	font-weight:bold;
+}
+
+.cBList
+{
+}
+
+.cBList dt
+{
+font-weight:bold;
+color:#FF3300;
+}
+.cBList dd
+{
+	padding-left: 10px;
+	background-image: url(arrow.gif);
+	background-repeat: no-repeat;
+	background-position: 0 .5em;
+}
+.cGetSet
+{
+	color: #0066ff;
+}
+a.cLinkOffSite
+{
+	font-family: Tahoma, Arial, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+	text-decoration: underline;
+	color: #9acd32;
+}
+a.cLinkOffSite:hover
+{
+text-decoration:none;
+}
+
+.cImportant
+{
+color:#FF3300;
+}
+
+.cGetSetDefault
+{
+	font-size: 10px;
+	color: #ffffff;
+	background-color: #00ccff;
+}
+.cCref
+{
+	color:Maroon;
+	font-family:Tahoma, Arial, sans-serif;
+	font-size:11px;
+	font-weight:normal;
+}
+.cBaseHierarchy
+{
+font-family:Tahoma, Arial, sans-serif;
+color:#6600CC;
+font-size:11px;
+font-weight:bold;
+}
